@@ -79,6 +79,7 @@ public:
     uint32_t GetCompressedRows();
     uint32_t GetCols();
     vector<string> GetHeaders();
+    Meta& GetMeta(){return meta;}
 
     uint32_t  StorageOfOneElement();
     

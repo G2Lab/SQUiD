@@ -9,9 +9,26 @@ Building Project
 Download and compile our [fork](https://github.com/SQUiDCodebase/HElibPublicKeySwitch) of HElib (make sure you install the [patchelf](https://github.com/NixOS/patchelf) (tested on v0.14.3-1) and [m4](https://www.gnu.org/software/m4/) (tested on v1.4.19-3) dependencies).
 Use the guide [here](https://github.com/homenc/HElib/blob/master/INSTALL.md) and follow **Option 1** to install HElib to a `mylibs` directory in the root directory.
 
+```
+git clone https://github.com/SQUiDCodebase/HElibPublicKeySwitch
+mkdir mylibs
+cd HElibPublicKeySwitch
+mkdir build
+cd build
+cmake -DPACKAGE_BUILD=ON -DCMAKE_INSTALL_PREFIX= PATH_TO_MYLIBS ..
+make && make install
+```
+
 Download [Google Benchmark](https://github.com/google/benchmark) (tested on v1.8.3).
 
-run `./scripts/make.sh` and then `make` to compile our repository.
+From the root directory, to build run the following:
+
+```
+mkdir build
+cd build
+../scripts/make.sh
+make
+```
 
 --------------------------------
 Sample Run

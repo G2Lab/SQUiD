@@ -225,9 +225,9 @@ static void BM_RangeMAFQuery(benchmark::State &state)
 BENCHMARK(BM_RangeCountQuery)->DenseRange(1, 6, 1)->Unit(benchmark::kSecond)->Setup(DoSetup);
 BENCHMARK(BM_RangeMAFQuery)->DenseRange(1, 6, 1)->Unit(benchmark::kSecond)->Setup(DoSetup);
 
-BENCHMARK(BM_CountQuery)->ArgsProduct({{2,16}, benchmark::CreateDenseRange(0, 1, /*step=*/1), {1,2,3,4,5,6}})->Unit(benchmark::kSecond)->Setup(DoSetup);
-BENCHMARK(BM_MAFQuery)->ArgsProduct({{2,16}, benchmark::CreateDenseRange(0, 1, /*step=*/1), {1,2,3,4,5,6}})->Unit(benchmark::kSecond)->Setup(DoSetup);
-BENCHMARK(BM_PRSQuery)->ArgsProduct({{1024, 16384}, {1,2,3,4,5,6}})->Unit(benchmark::kSecond)->Setup(DoSetup);
-BENCHMARK(BM_SimilarityQuery)->ArgsProduct({{2,16}, {1, 2, 3, 6}})->Unit(benchmark::kSecond)->Setup(DoSetup);
+BENCHMARK(BM_CountQuery)->ArgsProduct({{2, 16}, benchmark::CreateDenseRange(0, 1, /*step=*/1), {1, 2, 3, 4, 5, 6}})->Unit(benchmark::kSecond)->Setup(DoSetup);
+BENCHMARK(BM_MAFQuery)->ArgsProduct({{2, 16}, benchmark::CreateDenseRange(0, 1, /*step=*/1), {1, 2, 3, 4, 5, 6}})->Unit(benchmark::kSecond)->Setup(DoSetup);
+BENCHMARK(BM_PRSQuery)->ArgsProduct({{1024, 16384}, {1, 2, 3, 4, 5, 6}})->Unit(benchmark::kSecond)->Setup(DoSetup);
+BENCHMARK(BM_SimilarityQuery)->ArgsProduct({{2, 16}, {1, 2, 3, 6}})->Unit(benchmark::kSecond)->Setup(DoSetup);
 
 BENCHMARK_MAIN();
