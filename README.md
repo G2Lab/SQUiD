@@ -6,7 +6,7 @@ Building Project
 --------------------------------
 
 
-Download and compile our [fork](https://github.com/SQUiDCodebase/HElibPublicKeySwitch) of HElib (make sure you install the [patchelf](https://github.com/NixOS/patchelf) (tested on v0.14.3-1) and [m4](https://www.gnu.org/software/m4/) (tested on v1.4.19-3) dependencies).
+Download and compile our [fork](https://github.com/G2Lab/HElibPublicKeySwitch) of HElib (make sure you install the [patchelf](https://github.com/NixOS/patchelf) (tested on v0.14.3-1) and [m4](https://www.gnu.org/software/m4/) (tested on v1.4.19-3) dependencies).
 Use the guide [here](https://github.com/homenc/HElib/blob/master/INSTALL.md) and follow **Option 1** to install HElib to a `mylibs` directory in the root directory.
 
 ```
