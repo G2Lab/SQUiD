@@ -32,37 +32,7 @@ std::vector<std::pair<int, int>> parseString(const std::string& s) {
 
 Server::Server(): squid(){
     api_keys = std::unordered_set<std::string>{MasterApiKey};
-}
-
-void Server::runTest(const HttpRequestPtr &req,
-                 std::function<void (const HttpResponsePtr &)> &&callback,
-                 const std::string &apikey) const
-{
-    LOG_DEBUG<<"Running Get Context query with from user with API Key: " << apikey;
-
-    Json::Value ret;
-
-    if (api_keys.count(apikey) == 0){
-        ret["result"]="failed";
-        auto resp=HttpResponse::newHttpJsonResponse(ret);
-        callback(resp);
-        return;
-    }
-
-    Json::Value meh;
-    meh["hi"] = "hi";
-    shared_ptr<HttpRequest> req2 = HttpRequest::newHttpJsonRequest(meh);
-    req2->setMethod(drogon::Post);
-    req2->setPath("/api/v1/apitest/json");
-
-    for (auto i : req2->getHeaders()){
-        cout << i.first << "    " << i.second << endl;
-    }
-    std::cout << req2->getBody() << std::endl;
-
-
-    
-}
+};
 
 void Server::getContext(const HttpRequestPtr &req,
                  std::function<void (const HttpResponsePtr &)> &&callback,
@@ -112,7 +82,7 @@ void Server::printDB(const HttpRequestPtr &req,
 
 void Server::authorizeAPI(const HttpRequestPtr &req,
                  std::function<void (const HttpResponsePtr &)> &&callback,
-                 const std::string &apikey)  const{
+                 const std::string &apikey) {
     LOG_DEBUG<<"Running authorize API from a user with Key:" << apikey;
 
     Json::Value ret;
@@ -192,9 +162,14 @@ void Server::countingQueryAPI(const HttpRequestPtr &req,
     
     helib::Ctxt result = squid.CountingQuery(conjunctive, pairs);
 
-    vector<long int> decrypted_result = squid.Decrypt(result);
+    auto ksk = key_switch_store.at(apikey);
 
-    ret["result"]=to_string(decrypted_result[0]);
+    result.PublicKeySwitch(std::make_pair(std::ref(ksk.first), std::ref(ksk.second)));
+    
+    std::stringstream ss;
+    result.writeToJSON(ss);
+    ret["result"]=ss.str();
+
     auto resp=HttpResponse::newHttpJsonResponse(ret);
     callback(resp);
 }
@@ -266,20 +241,29 @@ void Server::mafQueryAPI(const HttpRequestPtr &req,
     
     std::pair<helib::Ctxt, helib::Ctxt> result = squid.MAFQuery(i_target, conjunctive, pairs);
 
-    vector<long int> decrypted_result_1 = squid.Decrypt(result.first);
-    vector<long int> decrypted_result_2 = squid.Decrypt(result.second);
+    auto ksk = key_switch_store.at(apikey);
 
-    ret["result"]=to_string(decrypted_result_1[0]) + " " + to_string(decrypted_result_2[0]);
+    result.first.PublicKeySwitch(std::make_pair(std::ref(ksk.first), std::ref(ksk.second)));
+    result.second.PublicKeySwitch(std::make_pair(std::ref(ksk.first), std::ref(ksk.second)));
+    
+    std::stringstream ss;
+    result.first.writeToJSON(ss);
+    ret["result_1"]=ss.str();
+
+    ss.str("");
+    result.second.writeToJSON(ss);
+    ret["result_2"]=ss.str();
+
     auto resp=HttpResponse::newHttpJsonResponse(ret);
     callback(resp);
 }
 
-void Server::distributionQueryAPI(const HttpRequestPtr &req,
+void Server::PRSQueryAPI(const HttpRequestPtr &req,
                    std::function<void (const HttpResponsePtr &)> &&callback,
                    std::string params,
                    const std::string &apikey) const
 {
-    LOG_DEBUG<<"Running distribution query with "<< params <<" from user with API Key: " << apikey;
+    LOG_DEBUG<<"Running PRS query with "<< params <<" from user with API Key: " << apikey;
 
     Json::Value ret;
 
@@ -299,20 +283,19 @@ void Server::distributionQueryAPI(const HttpRequestPtr &req,
         return;
     }
     
-    std::vector<helib::Ctxt> results = squid.DistrubtionQuery(pairs);
+    std::vector<helib::Ctxt> results = squid.PRSQuery(pairs);
 
-    vector<long int> decrypted_result = squid.Decrypt(results[0]);
+    auto ksk = key_switch_store.at(apikey);
 
-    std::stringstream ss;
-    for (int i = 0; i < squid.GetNumRows(); i++) {
-        ss << decrypted_result[i];
-        if (i != squid.GetNumRows() - 1) {
-            ss << ", ";
-        }
+    for (size_t i = 0; i < results.size(); i++){
+        results[i].PublicKeySwitch(std::make_pair(std::ref(ksk.first), std::ref(ksk.second)));
     }
-    std::string results_string = ss.str();
+    for (size_t i = 0; i < results.size(); i++){
+        std::stringstream ss;
+        results[i].writeToJSON(ss);
+        ret["result_" + std::to_string(i)]=ss.str();
+    }
 
-    ret["result"]=results_string;
     auto resp=HttpResponse::newHttpJsonResponse(ret);
     callback(resp);
 }
@@ -348,7 +331,7 @@ void Server::getHeadersAPI(const HttpRequestPtr &req,
     callback(resp);
 }
 
-void Server::AddKSK(helib::PubKey& client_pk, string id) const{
-    pair<vector<helib::DoubleCRT>,vector<helib::DoubleCRT>> ksk = client_pk.genPublicKeySwitchingKey(squid.GetSK(), 0);
-    //key_switch_store[id] = ksk;
+void Server::AddKSK(helib::PubKey& client_pk, string id){
+    auto ksk = client_pk.genPublicKeySwitchingKey(squid.GetSK());
+    key_switch_store.emplace(id, ksk);
 }

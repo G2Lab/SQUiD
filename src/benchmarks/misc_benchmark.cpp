@@ -355,34 +355,22 @@ static void BM_SimilarityComputation(benchmark::State &state)
     }
 }
 
-// BENCHMARK(BM_SimilarityComputation)->ArgsProduct({{100, 1000}, {1,2,3}})->Unit(benchmark::kSecond)->Setup(DoSetup);
+BENCHMARK(BM_SimilarityComputation)->ArgsProduct({{100, 1000}, {1,2,3}})->Unit(benchmark::kSecond)->Setup(DoSetup);
 
-// BENCHMARK(BM_GeneratePublicKeySwitch)->ArgsProduct({{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}})->Unit(benchmark::kSecond);
-// BENCHMARK(BM_SwithPublicKeySwitch)->ArgsProduct({{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}})->Unit(benchmark::kSecond);
-// BENCHMARK(BM_ParallelPRSQuery)->ArgsProduct({{1024, 4096, 16384}, benchmark::CreateRange(1, 16, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
+BENCHMARK(BM_GeneratePublicKeySwitch)->ArgsProduct({{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}})->Unit(benchmark::kSecond);
+BENCHMARK(BM_SwithPublicKeySwitch)->ArgsProduct({{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}})->Unit(benchmark::kSecond);
+BENCHMARK(BM_ParallelPRSQuery)->ArgsProduct({{1024, 4096, 16384}, benchmark::CreateRange(1, 16, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
 
-// BENCHMARK(BM_ParallelPRSQuery)->ArgsProduct({{1024, 4096, 16384}, benchmark::CreateRange(1, 16, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
-
-// BENCHMARK(BM_ParallelMAFQuery)->ArgsProduct({{2, 4,8, 16}, benchmark::CreateRange(1, 16, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
-// BENCHMARK(BM_ParallelCountQuery)->ArgsProduct({{2, 4,8, 16}, benchmark::CreateRange(1, 16, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
+BENCHMARK(BM_ParallelMAFQuery)->ArgsProduct({{2, 4, 8, 16}, benchmark::CreateRange(1, 16, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
+BENCHMARK(BM_ParallelCountQuery)->ArgsProduct({{2, 4, 8, 16}, benchmark::CreateRange(1, 16, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
 BENCHMARK(BM_ParallelSimilarityQuery)->ArgsProduct({{1024, 4096, 16384}, {8}})->Unit(benchmark::kSecond)->Setup(DoSetup);
-// BENCHMARK(BM_EncrpytCiphertext)->Unit(benchmark::kSecond)->Setup(DoSetup);
+BENCHMARK(BM_EncrpytCiphertext)->Unit(benchmark::kSecond)->Setup(DoSetup);
 
-/*
-BENCHMARK(BM_ParallelMAFQuery)->ArgsProduct({{4,8, 16}, {4}})->Unit(benchmark::kSecond)->Setup(DoSetup);
-BENCHMARK(BM_ParallelMAFQuery)->ArgsProduct({{8, 16}, {8}})->Unit(benchmark::kSecond)->Setup(DoSetup);
-BENCHMARK(BM_ParallelMAFQuery)->ArgsProduct({{16}, {16}})->Unit(benchmark::kSecond)->Setup(DoSetup);
-BENCHMARK(BM_ParallelCountQuery)->ArgsProduct({{2,4,8, 16},{1,2}})->Unit(benchmark::kSecond)->Setup(DoSetup);
-BENCHMARK(BM_ParallelCountQuery)->ArgsProduct({{4,8, 16}, {4}})->Unit(benchmark::kSecond)->Setup(DoSetup);
-BENCHMARK(BM_ParallelCountQuery)->ArgsProduct({{8, 16}, {8}})->Unit(benchmark::kSecond)->Setup(DoSetup);
-BENCHMARK(BM_ParallelCountQuery)->ArgsProduct({{16}, {16}})->Unit(benchmark::kSecond)->Setup(DoSetup);
-*/
+BENCHMARK(BM_UpdateOneValue)->ArgsProduct({benchmark::CreateRange(1, 1024, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
+BENCHMARK(BM_UpdateOneRow)->ArgsProduct({benchmark::CreateRange(1, 1024, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
+BENCHMARK(BM_InsertRow)->ArgsProduct({benchmark::CreateRange(1, 1024, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
+BENCHMARK(BM_DeleteRowAddition)->ArgsProduct({benchmark::CreateRange(1, 1024, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
+BENCHMARK(BM_DeleteRowMultiplication)->ArgsProduct({benchmark::CreateRange(1, 1024, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
 
-// BENCHMARK(BM_UpdateOneValue)->ArgsProduct({benchmark::CreateRange(1, 1024, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
-// BENCHMARK(BM_UpdateOneRow)->ArgsProduct({benchmark::CreateRange(1, 1024, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
-// BENCHMARK(BM_InsertRow)->ArgsProduct({benchmark::CreateRange(1, 1024, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
-// BENCHMARK(BM_DeleteRowAddition)->ArgsProduct({benchmark::CreateRange(1, 1024, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
-// BENCHMARK(BM_DeleteRowMultiplication)->ArgsProduct({benchmark::CreateRange(1, 1024, /*step=*/2)})->Unit(benchmark::kSecond)->Setup(DoSetup);
-
-// BENCHMARK(BM_StorageCiphertext)->Unit(benchmark::kSecond)->Setup(DoSetup);
+BENCHMARK(BM_StorageCiphertext)->Unit(benchmark::kSecond)->Setup(DoSetup);
 BENCHMARK_MAIN();

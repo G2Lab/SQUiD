@@ -29,7 +29,7 @@ std::string POST_AUTH_API_CALL = "au";
 
 std::string GET_COUNT_API_CALL = "countingQuery";
 std::string GET_MAF_API_CALL = "mafQuery";
-std::string GET_PRS_API_CALL = "distQuery";
+std::string GET_PRS_API_CALL = "PRSQuery";
 std::string GET_HEADERS_API_CALL = "headers";
 std::string GET_PRINT_DB_API_CALL = "printDB";
 
@@ -123,12 +123,12 @@ string conjunctiveToString(string conjunctive){
   return conjunctive;
 }
 
-int tryReadPubKey(){
+helib::PubKey readPubKey(){
     std::string context_file_path = API_DATA_DIR + "/" + CONTEXT_FILE;
 
     if (!std::filesystem::exists(context_file_path)){
         std::cout << "No context file, run getContext" << endl;
-        return 1;
+        throw "No context file";
     }
     std::ifstream in_context_file;
 
@@ -144,15 +144,67 @@ int tryReadPubKey(){
     if (in_pubkey_file.is_open()) {
         helib::PubKey pubkey = helib::PubKey::readFromJSON(in_pubkey_file, context);
         in_pubkey_file.close();
+        return pubkey;
     }
     else{
         std::cout << "Error opening file." << std::endl;
-        return 1;
+        throw "No public key file";
     }
-    getTime();
-    std::cout << "Read in Public Key File" << std::endl;
-    return 0;
 }
+
+vector<long> decrypt(std::string ctxt_file_path){
+
+    std::string context_file_path = API_DATA_DIR + "/" + CONTEXT_FILE;
+
+    if (!std::filesystem::exists(context_file_path)){
+        std::cout << "No context file, run getContext" << endl;
+        throw "No context file";
+    }
+    std::ifstream in_context_file;
+
+    in_context_file.open(context_file_path, std::ios::in);
+    helib::Context context = helib::Context::readFromJSON(in_context_file);
+    in_context_file.close();
+
+    std::ifstream in_sec_key_file;
+    in_sec_key_file.open(API_DATA_DIR + "/" + SEC_KEY_FILE, std::ios::in);
+    if (in_sec_key_file.is_open()) {
+        helib::SecKey secret_key = helib::SecKey::readFromJSON(in_sec_key_file, context);
+        in_sec_key_file.close();
+
+        helib::Ptxt<helib::BGV> new_plaintext_result(context);
+
+        std::ifstream in_pubkey_file;
+        in_pubkey_file.open(API_DATA_DIR + "/" + PUBLIC_KEY_FILE, std::ios::in);
+        if (!in_pubkey_file.is_open()) {
+          throw "No public key file";
+        }
+        helib::PubKey pubkey = helib::PubKey::readFromJSON(in_pubkey_file, context);
+        in_pubkey_file.close();
+
+        std::ifstream in_ctxt_file;
+        in_ctxt_file.open(ctxt_file_path, std::ios::in);
+        helib::Ctxt ctxt = helib::Ctxt::readFromJSON(in_ctxt_file, pubkey);
+        in_ctxt_file.close();
+
+        secret_key.Decrypt(new_plaintext_result, ctxt);
+
+        vector<helib::PolyMod> poly_mod_result = new_plaintext_result.getSlotRepr();
+        int num_slots = context.getEA().size();
+        vector<long> result = vector<long>(num_slots);
+
+        for (size_t i = 0; i < num_slots; i++)
+        {
+            result[i] = (long)poly_mod_result[i];
+        }
+        return result;
+    }
+    else{
+        std::cout << "Error opening file." << std::endl;
+        throw "No secret key file";
+    }
+}
+
 
 std::pair<string,string> readConfig(string filePath) {
   ifstream infile(filePath);
@@ -369,8 +421,12 @@ int countingQuery(std::string filter, std::string conjunctive){
     }
 
     std::string context_data = responseJson["result"];
+    std::ofstream outfile("count_query.results");
+    outfile << context_data;
+    outfile.close();
+
     getTime();
-    std::cout << "Count:" << context_data << std::endl;
+    std::cout << "Count query result saved to count_query.results" << std::endl;
     return 0;
 }
 int MAFQuery(std::string filter, std::string conjunctive, std::string target_snp){
@@ -395,16 +451,19 @@ int MAFQuery(std::string filter, std::string conjunctive, std::string target_snp
         return 1;
     }
 
-    std::string context_data = responseJson["result"];
-    //std::cout << context_data << std::endl;
+    std::string context_data = responseJson["result_1"];
+    std::ofstream outfile("MAF_query_1.results");
+    outfile << context_data;
+    outfile.close();
 
-    stringstream ss(context_data);
-    int a, b;
-    ss >> a >> b;
+    context_data = responseJson["result_2"];
+    std::istringstream ss2(context_data);
+    std::ofstream outfile2("MAF_query_2.results");
+    outfile2 << context_data;
+    outfile2.close();
 
-    double result = min(a, b-a) / static_cast<double>(b);
     getTime();
-    std::cout << "MAF: " << result << endl;
+    std::cout << "MAF query result saved to MAF_query_1.results for numerator and MAF_query_2.results for denominator" << std::endl;
     return 0;
 }
 int prsQuery(std::string prs){
@@ -412,7 +471,7 @@ int prsQuery(std::string prs){
     string API_URL = conf.first; string API_KEY = conf.second;
 
     std::cout << "PRS Query with:" << endl;
-    std::cout << "prs score: " << prs << endl;
+    std::cout << "prs: " << prs << endl;
 
     std::string url_request = API_URL + GET_PRS_API_CALL + "?params=" + prs + "&key=" + API_KEY;
     std::string responseStr = sendHttpRequest(url_request);
@@ -423,8 +482,14 @@ int prsQuery(std::string prs){
         return 1;
     }
 
-    std::string context_data = responseJson["result"];
-    std::cout << context_data << std::endl;
+    int index = 0;
+    while (responseJson["result_" + std::to_string(index)] != nullptr){
+        std::string context_data = responseJson["result_" + std::to_string(index)];
+        std::ofstream outfile("PRS_query_" + std::to_string(index) + ".results");
+        outfile << context_data;
+        outfile.close();
+        index++;
+    }
     return 0;
 }
 
@@ -447,7 +512,7 @@ int main(int argc, char **argv) {
 
     std::cerr << std::endl;
     std::cerr << "--- Helper --- " << std::endl;
-    std::cerr << "Decrypt query results (for queries not automatically decrypted): " << argv[0] << " decrypt <file>" << std::endl;
+    std::cerr << "Decrypt query results: " << argv[0] << " decrypt <file>" << std::endl;
     return 1;
   }
 
@@ -475,9 +540,6 @@ int main(int argc, char **argv) {
   else if (option == "print") {
     result = printDB();
   }
-  else if (option == "test") {
-    result = tryReadPubKey();
-  }
   else if (option == "genContext") {
     result = genContext();
   }
@@ -490,16 +552,28 @@ int main(int argc, char **argv) {
   else if (option == "authorize"){
     result = authorization();
   }
+  else if (option == "decrypt") {
+    if (argc != 3){
+      std::cout << "Not enough parameters for decrypt [file]" << std::endl;
+      return 1;
+    }
+    std::vector<long> result = decrypt(argv[2]);
+    for (size_t i = 0; i < result.size(); i++)
+    {
+        std::cout << result[i] << std::endl;
+    }
+    return 0;
+  }
   else if (option == "count") {
     if (argc != 4){
-      std::cout << "Not enough parameters for the count query [filter] [conjunctive]" << std::endl;
+      std::cout << "Not enough parameters for the count query [filter] [conjunctive], ex: ../bin/squid count \"[(1,1)]\" 1" << std::endl;
       return 1;
     }
     return countingQuery(argv[2], argv[3]);
   }
   else if (option == "MAF") {
     if (argc != 5){
-      std::cout << "Not enough parameters for the MAF query [filter] [conjunctive] [target snp]" << std::endl;
+      std::cout << "Not enough parameters for the MAF query [filter] [conjunctive] [target snp], ex: ../bin/squid MAF \"[(1,1)]\" 1 0" << std::endl;
       return 1;
     }
     return MAFQuery(argv[2], argv[3], argv[4]);

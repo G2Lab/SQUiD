@@ -22,19 +22,14 @@ class Server : public drogon::HttpController<Server>
     METHOD_LIST_BEGIN
     METHOD_ADD(Server::getContext,"/getContext?key={1}", Get);
     METHOD_ADD(Server::printDB,"/printDB?key={1}", Get);
-    METHOD_ADD(Server::runTest,"/test?key={1}", Get);
     METHOD_ADD(Server::authorizeAPI,"/au?key={1}", Post);
     METHOD_ADD(Server::countingQueryAPI,"/countingQuery?query={1}&conj={2}&key={3}", Get);
     METHOD_ADD(Server::mafQueryAPI,"/mafQuery?query={1}&conj={2}&target={3}&key={4}", Get);
-    METHOD_ADD(Server::distributionQueryAPI,"/distQuery?params={1}&key={2}", Get);
+    METHOD_ADD(Server::PRSQueryAPI,"/PRSQuery?params={1}&key={2}", Get);
     METHOD_ADD(Server::getHeadersAPI,"/headers?key={1}", Get);
     METHOD_LIST_END
 
     Server();
-
-    void runTest(const HttpRequestPtr &req,
-                 std::function<void (const HttpResponsePtr &)> &&callback,
-                 const std::string &apikey) const;
 
     void getContext(const HttpRequestPtr &req,
                  std::function<void (const HttpResponsePtr &)> &&callback,
@@ -46,7 +41,7 @@ class Server : public drogon::HttpController<Server>
 
     void authorizeAPI(const HttpRequestPtr &req,
                  std::function<void (const HttpResponsePtr &)> &&callback,
-                 const std::string &apikey) const;
+                 const std::string &apikey);
       
     void countingQueryAPI(const HttpRequestPtr &req,
                  std::function<void (const HttpResponsePtr &)> &&callback,
@@ -59,7 +54,7 @@ class Server : public drogon::HttpController<Server>
                  std::string conj,
                  std::string target,
                  const std::string &apikey) const;
-    void distributionQueryAPI(const HttpRequestPtr &req,
+    void PRSQueryAPI(const HttpRequestPtr &req,
                  std::function<void (const HttpResponsePtr &)> &&callback,
                  std::string params,
                  const std::string &apikey) const;
@@ -67,14 +62,12 @@ class Server : public drogon::HttpController<Server>
                  std::function<void (const HttpResponsePtr &)> &&callback,
                  const std::string &apikey) const;
     
-    void AddKSK(helib::PubKey& client_pk, string id) const;
+    void AddKSK(helib::PubKey& client_pk, string id);
 
   private:
     const std::string MasterApiKey = "nNCHuSdBWZsDJNFOJqUWDAUibEvVcVniRqbiIoM";
     std::unordered_set<std::string> api_keys;
-
-    std::map<std::string, std::pair<std::vector<helib::DoubleCRT>,std::vector<helib::DoubleCRT>>> key_switch_store;
-
+    std::map<std::string, std::pair<std::vector<helib::DoubleCRT>, std::vector<helib::DoubleCRT>>> key_switch_store;
     Squid squid;
 };
 }

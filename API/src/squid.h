@@ -23,7 +23,7 @@ class Squid
 
     helib::Ctxt CountingQuery(bool conjunctive, vector<pair<int, int>>& query) const;
     pair<helib::Ctxt, helib::Ctxt> MAFQuery(int snp, bool conjunctive, vector<pair<int, int>> &query) const;
-    vector<helib::Ctxt> DistrubtionQuery(vector<pair<int, int>>& prs_params) const;
+    vector<helib::Ctxt> PRSQuery(vector<pair<int, int>>& prs_params) const;
     vector<pair<helib::Ctxt, helib::Ctxt>> ChiSquareQuery(bool conjunctive, vector<pair<int, int>>& query, int disease_column, int number_of_chi);
     vector<pair<helib::Ctxt, helib::Ctxt>> ChiSquareQuery(int disease_column, int number_of_chi);
 

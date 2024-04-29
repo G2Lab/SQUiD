@@ -295,7 +295,7 @@ pair<helib::Ctxt, helib::Ctxt> Squid::MAFQuery(int snp, bool conjunctive, vector
     return pair(freq, number_of_patients);
 }
 
-vector<helib::Ctxt> Squid::DistrubtionQuery(vector<pair<int, int>>& prs_params) const{
+vector<helib::Ctxt> Squid::PRSQuery(vector<pair<int, int>>& prs_params) const{
 
     vector<helib::Ctxt> scores;
 

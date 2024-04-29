@@ -8,18 +8,18 @@
 #include "globals.hpp"
 #include "tools.hpp"
 
-
-
-class SQUiDTest : public ::testing::Test {
+class SQUiDTest : public ::testing::Test
+{
 protected:
     // This is called before the first test
     static std::unique_ptr<Server> serverInstance;
-    static std::vector<std::vector<uint32_t>>* fake_db;  // Change to pointer
+    static std::vector<std::vector<uint32_t>> *fake_db; // Change to pointer
 
     static const int num_cols = 3;
     static const int num_rows = 100;
 
-    static void SetUpTestSuite() {
+    static void SetUpTestSuite()
+    {
         serverInstance = std::make_unique<Server>(constants::P131, true);
 
         std::cout << "Generating fake database..." << std::endl;
@@ -28,8 +28,10 @@ protected:
         fake_db = new std::vector<std::vector<uint32_t>>(num_cols, std::vector<uint32_t>(num_rows, 0));
 
         // Initialize fake_db with random values
-        for (int i = 0; i < num_cols; i++) {
-            for (int j = 0; j < num_rows; j++) {
+        for (int i = 0; i < num_cols; i++)
+        {
+            for (int j = 0; j < num_rows; j++)
+            {
                 (*fake_db)[i][j] = rand() % 2;
             }
         }
@@ -38,7 +40,8 @@ protected:
     }
 
     // This is called after the last test
-    static void TearDownTestSuite() {
+    static void TearDownTestSuite()
+    {
         // Deallocate memory for fake_db
         delete fake_db;
     }
@@ -48,17 +51,20 @@ protected:
 };
 
 std::unique_ptr<Server> SQUiDTest::serverInstance = nullptr;
-std::vector<std::vector<uint32_t>>* SQUiDTest::fake_db = nullptr;  // Initialize to nullptr
+std::vector<std::vector<uint32_t>> *SQUiDTest::fake_db = nullptr; // Initialize to nullptr
 
-TEST_F(SQUiDTest, CountingQueryAnd) {
+TEST_F(SQUiDTest, CountingQueryAnd)
+{
     vector<pair<uint32_t, uint32_t>> query;
-    query = vector<pair<uint32_t, uint32_t>>{pair(0,0), pair(1,1)};
+    query = vector<pair<uint32_t, uint32_t>>{pair(0, 0), pair(1, 1)};
     auto result_encrypted = SQUiDTest::serverInstance->CountQuery(1, query);
     auto result = SQUiDTest::serverInstance->Decrypt(result_encrypted)[0];
 
     int true_count = 0;
-    for (int i = 0; i < num_rows; i++) {
-        if ((*fake_db)[0][i] == 0 && (*fake_db)[1][i] == 1) {
+    for (int i = 0; i < num_rows; i++)
+    {
+        if ((*fake_db)[0][i] == 0 && (*fake_db)[1][i] == 1)
+        {
             true_count++;
         }
     }
@@ -70,15 +76,18 @@ TEST_F(SQUiDTest, CountingQueryAnd) {
     ASSERT_EQ(true_count, result);
 }
 
-TEST_F(SQUiDTest, CountingQueryOr) {
+TEST_F(SQUiDTest, CountingQueryOr)
+{
     vector<pair<uint32_t, uint32_t>> query;
-    query = vector<pair<uint32_t, uint32_t>>{pair(0,0), pair(1,1)};
+    query = vector<pair<uint32_t, uint32_t>>{pair(0, 0), pair(1, 1)};
     auto result_encrypted = SQUiDTest::serverInstance->CountQuery(0, query);
     auto result = SQUiDTest::serverInstance->Decrypt(result_encrypted)[0];
 
     int true_count = 0;
-    for (int i = 0; i < num_rows; i++) {
-        if ((*fake_db)[0][i] == 0 || (*fake_db)[1][i] == 1) {
+    for (int i = 0; i < num_rows; i++)
+    {
+        if ((*fake_db)[0][i] == 0 || (*fake_db)[1][i] == 1)
+        {
             true_count++;
         }
     }
@@ -90,10 +99,11 @@ TEST_F(SQUiDTest, CountingQueryOr) {
     ASSERT_EQ(true_count, result);
 }
 
-TEST_F(SQUiDTest, MAFQuery) {
+TEST_F(SQUiDTest, MAFQuery)
+{
     vector<pair<uint32_t, uint32_t>> query;
-    query = vector<pair<uint32_t, uint32_t>>{pair(0,1)};
-    auto result_encrypted = SQUiDTest::serverInstance->MAFQuery(2,1, query);
+    query = vector<pair<uint32_t, uint32_t>>{pair(0, 1)};
+    auto result_encrypted = SQUiDTest::serverInstance->MAFQuery(2, 1, query);
     auto result = SQUiDTest::serverInstance->Decrypt(result_encrypted);
     auto nom = result[0];
     auto dom = result[1];
@@ -101,9 +111,11 @@ TEST_F(SQUiDTest, MAFQuery) {
 
     int true_count = 0;
     int passing_rows = 0;
-    for (int i = 0; i < num_rows; i++) {
-        if ((*fake_db)[0][i] == 1) {
-            true_count+= (*fake_db)[2][i];
+    for (int i = 0; i < num_rows; i++)
+    {
+        if ((*fake_db)[0][i] == 1)
+        {
+            true_count += (*fake_db)[2][i];
             passing_rows++;
         }
     }
@@ -119,26 +131,31 @@ TEST_F(SQUiDTest, MAFQuery) {
     ASSERT_EQ(true_maf, MAF);
 }
 
-TEST_F(SQUiDTest, PRSQuery) {
+TEST_F(SQUiDTest, PRSQuery)
+{
     vector<pair<uint32_t, int>> query;
     query = vector<pair<uint32_t, int>>{pair(0, 2), pair(1, 3), pair(2, 9)};
     auto result_encrypted = SQUiDTest::serverInstance->PRSQuery(query);
     auto result = SQUiDTest::serverInstance->Decrypt(result_encrypted[0]);
 
     std::vector<int> true_result(SQUiDTest::num_rows, 0);
-    for (int i = 0; i < SQUiDTest::num_rows; i++) {
+    for (int i = 0; i < SQUiDTest::num_rows; i++)
+    {
         true_result[i] = 2 * (*fake_db)[0][i] + 3 * (*fake_db)[1][i] + 9 * (*fake_db)[2][i];
     }
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 100; i++)
+    {
         ASSERT_EQ(true_result[i], result[i]);
     }
 }
 
-TEST_F(SQUiDTest, SimilarityQuery){
+TEST_F(SQUiDTest, SimilarityQuery)
+{
     vector<helib::Ctxt> d = vector<helib::Ctxt>();
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++)
+    {
         d.push_back(SQUiDTest::serverInstance->Encrypt(2));
     }
     int threshold = 2;
@@ -149,13 +166,17 @@ TEST_F(SQUiDTest, SimilarityQuery){
 
     int true_with = 0;
     int true_without = 0;
-    for (int i = 0; i < num_rows; i++) {
+    for (int i = 0; i < num_rows; i++)
+    {
 
-        if (pow((*fake_db)[0][i] - 2,2) + pow((*fake_db)[1][i] - 2, 2) <= threshold) {
-            if ((*fake_db)[2][i] == 2) {
+        if (pow((*fake_db)[0][i] - 2, 2) + pow((*fake_db)[1][i] - 2, 2) <= threshold)
+        {
+            if ((*fake_db)[2][i] == 2)
+            {
                 true_with++;
             }
-            else {
+            else
+            {
                 true_without++;
             }
         }
@@ -170,7 +191,8 @@ TEST_F(SQUiDTest, SimilarityQuery){
     ASSERT_EQ(true_with, with);
 }
 
-TEST_F(SQUiDTest, PublicKeySwitch) {
+TEST_F(SQUiDTest, PublicKeySwitch)
+{
     Meta meta;
     meta(constants::P131);
 
@@ -182,7 +204,7 @@ TEST_F(SQUiDTest, PublicKeySwitch) {
     client_secret_key.GenSecKey();
     helib::PubKey client_public_key(client_secret_key);
 
-    pair<vector<helib::DoubleCRT>, vector<helib::DoubleCRT>> ksk = client_public_key.genPublicKeySwitchingKey(owner_secret_key);
+    auto ksk = client_public_key.genPublicKeySwitchingKey(owner_secret_key);
 
     helib::Ptxt<helib::BGV> ptxt(meta.data->context);
     int num_slots = 10;
@@ -200,10 +222,10 @@ TEST_F(SQUiDTest, PublicKeySwitch) {
 
     helib::Ctxt clone = ctxt;
 
-    clone.PublicKeySwitch(ksk);
+    clone.PublicKeySwitch(std::make_pair(std::ref(ksk.first), std::ref(ksk.second)));
 
     std::cout << "Noise after: " << clone.capacity() << std::endl;
-    
+
     helib::Ptxt<helib::BGV> new_plaintext_result(meta.data->context);
     client_secret_key.Decrypt(new_plaintext_result, clone);
 
@@ -215,19 +237,23 @@ TEST_F(SQUiDTest, PublicKeySwitch) {
     {
         result[i] = (long)poly_mod_result[i];
     }
-    for (int i = 0; i < num_slots; i++) {
+    for (int i = 0; i < num_slots; i++)
+    {
         ASSERT_EQ(result[i], original_values[i]);
     }
 }
-TEST_F(SQUiDTest, CountAndKeySwitch){
+TEST_F(SQUiDTest, CountAndKeySwitch)
+{
     vector<pair<uint32_t, uint32_t>> query;
-    query = vector<pair<uint32_t, uint32_t>>{pair(0,0), pair(1,1)};
+    query = vector<pair<uint32_t, uint32_t>>{pair(0, 0), pair(1, 1)};
     auto result_encrypted = SQUiDTest::serverInstance->CountQuery(1, query);
     auto result = SQUiDTest::serverInstance->Decrypt(result_encrypted)[0];
 
     int true_count = 0;
-    for (int i = 0; i < num_rows; i++) {
-        if ((*fake_db)[0][i] == 0 && (*fake_db)[1][i] == 1) {
+    for (int i = 0; i < num_rows; i++)
+    {
+        if ((*fake_db)[0][i] == 0 && (*fake_db)[1][i] == 1)
+        {
             true_count++;
         }
     }
@@ -254,10 +280,10 @@ TEST_F(SQUiDTest, CountAndKeySwitch){
 
     helib::Ctxt clone = ctxt;
 
-    clone.PublicKeySwitch(ksk);
+    clone.PublicKeySwitch(std::make_pair(std::ref(ksk.first), std::ref(ksk.second)));
 
     std::cout << "Noise after: " << clone.capacity() << std::endl;
-    
+
     helib::Ptxt<helib::BGV> new_plaintext_result(meta.data->context);
     client_secret_key.Decrypt(new_plaintext_result, clone);
 
@@ -269,12 +295,14 @@ TEST_F(SQUiDTest, CountAndKeySwitch){
     {
         result2[i] = (long)poly_mod_result[i];
     }
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 100; i++)
+    {
         ASSERT_EQ(result2[i], true_count);
     }
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
