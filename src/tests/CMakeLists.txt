@@ -1,0 +1,27 @@
+cmake_minimum_required(VERSION 3.10)
+
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+add_executable(test_plaintext_database test_plaintext_database.cpp)
+add_executable(test_FHE_SIMD_database test_FHE_SIMD_database.cpp)
+add_executable(test_FHE_SIMD_database_no_comparator test_FHE_SIMD_database_no_comparator.cpp)
+add_executable(test_FHE_disk_database_no_comparator test_FHE_disk_database_no_comparator.cpp)
+add_executable(test_SQUiD test_SQUiD.cpp)
+
+target_link_libraries(test_plaintext_database gtest_main SQUiD Databases)
+target_link_libraries(test_FHE_SIMD_database gtest_main SQUiD Databases)
+target_link_libraries(test_FHE_SIMD_database_no_comparator gtest_main SQUiD Databases)
+target_link_libraries(test_FHE_disk_database_no_comparator gtest_main SQUiD Databases)
+target_link_libraries(test_SQUiD gtest_main SQUiD Databases)
+
+add_test(NAME test_plaintext_database COMMAND test_plaintext_database)
+add_test(NAME test_FHE_SIMD_database COMMAND test_FHE_SIMD_database)
+add_test(NAME test_FHE_SIMD_database_no_comparator COMMAND test_FHE_SIMD_database_no_comparator)
+add_test(NAME test_FHE_disk_database_no_comparator COMMAND test_FHE_disk_database_no_comparator)
+add_test(NAME test_SQUiD COMMAND test_SQUiD)

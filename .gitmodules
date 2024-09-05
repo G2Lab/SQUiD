@@ -1,0 +1,3 @@
+[submodule "HElibPublicKeySwitch"]
+	path = HElibPublicKeySwitch
+	url = https://github.com/G2Lab/HElibPublicKeySwitch
