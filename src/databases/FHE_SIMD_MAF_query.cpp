@@ -60,7 +60,7 @@ helib::Ctxt FHESIMDDatabase::MAFQuery(uint32_t snp, bool conjunctive, vector<pai
 
 #if COMPRESSED
     freq = squashCtxtWithMask(freq, 0);
-    number_of_patients = squashCtxtWithMask(number_of_patients, 1);
+    number_of_patients = squashCtxtWithMask(number_of_patients, freq.nAggregates);
 #endif
 
     number_of_patients.multByConstant(NTL::ZZX(2));
@@ -107,7 +107,7 @@ helib::Ctxt FHESIMDDatabase::MAFQueryP(uint32_t snp, vector<pair<uint32_t, uint3
     helib::Ctxt freq = getGenotype(snp, 0);
     freq *= predicate;
     freq = squashCtxtWithMask(freq, 0);
-    helib::Ctxt number_of_patients = squashCtxtWithMask(predicate, 1);
+    helib::Ctxt number_of_patients = squashCtxtWithMask(predicate, freq.nAggregates);
     number_of_patients.multByConstant(NTL::ZZX(2));
     freq += number_of_patients;
 
@@ -195,7 +195,7 @@ helib::Ctxt FHESIMDDatabase::MAFQueryPP(uint32_t snp, vector<pair<uint32_t, uint
     number_of_patients.multByConstant(NTL::ZZX(2));
 
     freq = squashCtxtWithMask(freq, 0);
-    number_of_patients = squashCtxtWithMask(number_of_patients, 1);
+    number_of_patients = squashCtxtWithMask(number_of_patients, freq.nAggregates);
 
     freq += number_of_patients;
     return freq;

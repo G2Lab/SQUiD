@@ -13,7 +13,6 @@ std::vector<std::pair<uint32_t, int32_t>> parseStringUI(const std::string &s)
     ss >> c1; // read [
     while (ss >> c1 >> x >> comma >> y >> c2)
     {
-        cout << c1 << ";" << x << ";" << comma << ";" << y << ";" << c2 << endl;
         if (c1 != '(' || comma != ',' || c2 != ')')
         {
             std::cerr << "Invalid format: " << s << std::endl;
@@ -45,7 +44,6 @@ std::vector<std::pair<uint32_t, uint32_t>> parseStringUU(const std::string &s)
     ss >> c1; // read [
     while (ss >> c1 >> x >> comma >> y >> c2)
     {
-        cout << c1 << ";" << x << ";" << comma << ";" << y << ";" << c2 << endl;
         if (c1 != '(' || comma != ',' || c2 != ')')
         {
             std::cerr << "Invalid format: " << s << std::endl;
@@ -75,7 +73,7 @@ void print_vector(const std::vector<std::string> &v)
     }
 }
 
-Server::Server() : squid(constants::Test, true)
+Server::Server() : squid(constants::SmallFastComp, true)
 {
     api_keys = std::unordered_set<std::string>{MasterApiKey};
     std::string path = getProjectRootPath();
@@ -231,7 +229,6 @@ void Server::countingQueryAPI(const HttpRequestPtr &req,
     }
 
     helib::Ctxt result = squid.countQuery(conjunctive, pairs);
-    int32_t chunking_factor = squid.getChunkingFactor();
 
     auto ksk = key_switch_store.at(apikey);
 
@@ -240,7 +237,6 @@ void Server::countingQueryAPI(const HttpRequestPtr &req,
     std::stringstream ss;
     result.writeToJSON(ss);
     ret["result"] = ss.str();
-    ret["chunking_factor"] = chunking_factor;
 
     auto resp = HttpResponse::newHttpJsonResponse(ret);
     callback(resp);
@@ -317,7 +313,6 @@ void Server::mafQueryAPI(const HttpRequestPtr &req,
     }
 
     helib::Ctxt result = squid.MAFQuery(i_target, conjunctive, pairs);
-    int32_t chunking_factor = squid.getChunkingFactor();
 
     auto ksk = key_switch_store.at(apikey);
 
@@ -326,7 +321,6 @@ void Server::mafQueryAPI(const HttpRequestPtr &req,
     std::stringstream ss;
     result.writeToJSON(ss);
     ret["result"] = ss.str();
-    ret["chunking_factor"] = chunking_factor;
 
     auto resp = HttpResponse::newHttpJsonResponse(ret);
     callback(resp);
@@ -440,8 +434,6 @@ void Server::similarityQueryAPI(const HttpRequestPtr &req,
     std::stringstream ss2;
     result.second.writeToJSON(ss2);
     ret["result_without"] = ss2.str();
-
-    ret["chunking_factor"] = squid.getChunkingFactor();
 
     ret["result"] = "success";
     auto resp = HttpResponse::newHttpJsonResponse(ret);

@@ -187,14 +187,25 @@ pair<helib::Ctxt, helib::Ctxt> FHESIMDDatabase::similarityQueryP(uint32_t target
     helib::Ctxt predicate(meta.data->publicKey);
     comparator->compare(predicate, scores_all, ptxt_threshold);
 
-    helib::Ctxt inverse_predicate = predicate;
-    addOneMod2(inverse_predicate);
+    helib::Ptxt<helib::BGV> mask(meta.data->context);
+    for (size_t i = 0; i < num_rows % num_slots; i++)
+    {
+        mask[i] = 1;
+    }
+    predicate.multByConstant(mask);
 
-    predicate *= getBinaryPheno(target_column, 0);
-    inverse_predicate *= getBinaryPheno(target_column, 0);
+    helib::Ctxt inverse_target = getBinaryPheno(target_column, 0);
+    addOneMod2(inverse_target);
+    inverse_target.multByConstant(mask);
 
-    helib::Ctxt count_with = squashCtxtLogTime(predicate);
-    helib::Ctxt count_without = squashCtxtLogTime(inverse_predicate);
+    inverse_target.multiplyBy(predicate);
+    predicate.multiplyBy(getBinaryPheno(target_column, 0));
+
+    helib::Ctxt count_with = predicate;
+    helib::Ctxt count_without = inverse_target;
+
+    count_with = squashCtxtLogTime(count_with);
+    count_without = squashCtxtLogTime(count_without);
 
     return pair(count_with, count_without);
 }

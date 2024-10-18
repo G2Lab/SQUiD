@@ -81,6 +81,7 @@ helib::Ctxt FHESIMDDatabase::squashCtxtLogTime(helib::Ctxt &ciphertext) const
 
         if (level == chunkingFactor || ciphertext.bitCapacity() < EARLY_TERM_NOISE_THRES)
         {
+            ciphertext.nAggregates = shift;
             break;
         }
 

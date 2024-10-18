@@ -2,13 +2,8 @@
 # SQUiD
 
 Ultra-Secure Storage and Analysis of Genetic Data for the Advancement of Precision Medicine
-
   
 ## Building Project
-
-
-
-  
 
 ###  Dependencies
 

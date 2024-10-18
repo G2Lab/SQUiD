@@ -203,7 +203,7 @@ helib::PubKey readOwnerPubKey()
   }
 }
 
-void decryptAndPrintCount(vector<long> &results, int32_t chunking_factor)
+void decryptAndPrintCount(vector<long> &results, long chunking_factor)
 {
   uint32_t count = 0;
   if (chunking_factor == 0 || chunking_factor == -1)
@@ -220,7 +220,7 @@ void decryptAndPrintCount(vector<long> &results, int32_t chunking_factor)
   std::cout << "Count: " << count << std::endl;
 }
 
-void decryptAndPrintMAF(vector<long> &results, int32_t chunking_factor)
+void decryptAndPrintMAF(vector<long> &results, long chunking_factor)
 {
   uint32_t numerator = 0;
   uint32_t denominator = 0;
@@ -260,7 +260,7 @@ void decryptAndPrintPRS(vector<vector<long>> &results, uint32_t num_rows)
   }
 }
 
-void decryptAndPrintSimilarity(vector<long> &results_1, vector<long> &results_2, int32_t chunking_factor)
+void decryptAndPrintSimilarity(vector<long> &results_1, vector<long> &results_2, long chunking_factor)
 {
   uint32_t with = 0;
   uint32_t without = 0;
@@ -337,8 +337,7 @@ void decrypt(std::string ctxt_file_path)
         result[i] = static_cast<long>(poly_mod_result[i]);
       }
 
-      int32_t chunking_factor = 0;
-      in_ctxt_file >> chunking_factor;
+      long chunking_factor = ctxt.nAggregates;
       decryptAndPrintCount(result, chunking_factor);
     }
     else if (queryType == "MAF")
@@ -355,8 +354,7 @@ void decrypt(std::string ctxt_file_path)
         result[i] = static_cast<long>(poly_mod_result[i]);
       }
 
-      int32_t chunking_factor = 0;
-      in_ctxt_file >> chunking_factor;
+      long chunking_factor = ctxt.nAggregates;
       decryptAndPrintMAF(result, chunking_factor);
     }
     else if (queryType == "PRS")
@@ -413,7 +411,6 @@ void decrypt(std::string ctxt_file_path)
       }
 
       int32_t chunking_factor = 0;
-      in_ctxt_file >> chunking_factor;
       decryptAndPrintSimilarity(result_1, result_2, chunking_factor);
     }
     else
@@ -672,8 +669,6 @@ int countingQuery(std::string filter, std::string conjunctive)
   std::ofstream outfile("count_query.results");
   outfile << "Count\n";
   outfile << context_data;
-  outfile << "\n";
-  outfile << responseJson["chunking_factor"];
   outfile.close();
 
   getTime();
@@ -709,8 +704,6 @@ int MAFQuery(std::string filter, std::string conjunctive, std::string target_snp
   std::ofstream outfile("MAF_query.results");
   outfile << "MAF\n";
   outfile << context_data;
-  outfile << "\n";
-  outfile << responseJson["chunking_factor"];
   outfile.close();
 
   getTime();
@@ -887,8 +880,6 @@ int similarityQuery(std::string target_patient, std::string threshold, std::stri
   outfile << ctxt_with;
   outfile << "\n";
   outfile << ctxt_without;
-  outfile << "\n";
-  outfile << responseJson["chunking_factor"];
   outfile.close();
 
   getTime();

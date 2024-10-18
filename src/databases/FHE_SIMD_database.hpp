@@ -14,7 +14,7 @@
 
 #define MAX_NUMBER_BITS 4
 #define NOISE_THRES 0
-#define EARLY_TERM_NOISE_THRES 30
+#define EARLY_TERM_NOISE_THRES 50
 #define WARN false
 
 #define COMPRESSED 1
