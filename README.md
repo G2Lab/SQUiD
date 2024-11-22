@@ -15,7 +15,7 @@ Download and install:
 
 ### Building project from source
 
-After cloning the repository, run the following commands:
+After cloning the repository, run the following commands to build the project from source:
 
 ```
 git submodule update --init --recursive
@@ -34,7 +34,7 @@ make
 
 ### Sample Run
 
-We have include a sample DB and query script to demonstrate the functionalities of SQUiD. After running the make command, run `../bin/main` to see our sample output (which will be the same as below).
+We have included a sample database and query script to demonstrate the functionalities of SQUiD. After building the project, run `../bin/main` from within the build directory to see our sample output (which will match the example below).
 
 ```
 Initialising database
@@ -116,9 +116,9 @@ On this machine, it took a few minutes to install HElib, less than a minute to i
 
 ## Installing the SQUiD API
 
-To run the API for SQUiD which the SQUiD CLI will communicate with, install the [Drogon](https://github.com/drogonframework/drogon) framework using this [guide](https://github.com/drogonframework/drogon/wiki/ENG-02-Installation).
+To run the API for SQUiD which the SQUiD CLI will interact with, install the [Drogon](https://github.com/drogonframework/drogon) framework using this [guide](https://github.com/drogonframework/drogon/wiki/ENG-02-Installation).
 
-Then, to install run the commands inside the `./build/` directory:
+Then, to install run the following commands inside the `./build/` directory:
 
 ```
 
@@ -134,11 +134,9 @@ Once the API has started up, you can send queries using the `../bin/squid`.
 
 ### Modifying SQUiD API to use different IP address
 
-  
-
 By default the SQUiD API and CLI run over the address `127.0.0.1`, but this can be changed to a server's IP address by modifying to following files:
 
-* In `./API/config.json`, line 15 - 21 will look like this,
+* In `config.json`, line 15 - 21 will look like this,
 
 ```
 
