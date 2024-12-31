@@ -37,7 +37,7 @@ make
 We have included a sample database and query script to demonstrate the functionalities of SQUiD. After building the project, run `../bin/main` from within the build directory to see our sample output (which will match the example below).
 
 ```
-Initialising database
+Initializing database
 Found file with comparison polynomial coefficients
 m = 17293, p = 131, phi(m) = 17292
   ord(p) = 3
